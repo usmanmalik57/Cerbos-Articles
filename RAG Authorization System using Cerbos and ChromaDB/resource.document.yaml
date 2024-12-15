@@ -1,0 +1,33 @@
+apiVersion: "api.cerbos.dev/v1"
+resourcePolicy:
+  resource: "vector_store"
+  version: "default"
+  rules:
+
+    - actions: ["ingest"]
+      effect: EFFECT_ALLOW
+      roles: ["data_ingestor", "admin"]
+
+
+    - actions: ["department_ingest"]
+      effect: EFFECT_ALLOW
+      roles: ["department_data_ingestor"]
+      condition:
+        match:
+          expr: request.principal.attr.department == request.resource.attr.type
+          
+          
+    - actions: ["retrieve"]
+      effect: EFFECT_ALLOW
+      roles: ["doc_retriever"]
+      condition:
+        match:
+          expr: request.principal.attr.doc_type == request.resource.attr.doc_type
+
+
+    - actions: ["retrieve"]
+      effect: EFFECT_ALLOW
+      roles: ["team_leader"]
+      condition:
+        match:
+          expr: request.principal.attr.team_name == request.resource.attr.team_name && request.principal.attr.doc_type == request.resource.attr.doc_type
